@@ -1,0 +1,29 @@
+{
+  "name": "@block-development-examples/post-meta-modal-2502fb",
+  "version": "0.1.0",
+  "author": "The WordPress Contributors",
+  "license": "GPL-2.0-or-later",
+  "scripts": {
+    "build": "wp-scripts build",
+    "start": "wp-scripts start",
+    "plugin-zip": "wp-scripts plugin-zip"
+  },
+  "files": [
+    "*"
+  ],
+  "devDependencies": {
+    "@wordpress/scripts": "^27.8.0"
+  },
+  "description": "Post Meta Modal",
+  "dependencies": {
+    "@vis.gl/react-google-maps": "^1.0.0",
+    "@wordpress/data": "^9.27.0",
+    "@wordpress/icons": "^9.48.0",
+    "dotenv": "^16.4.5",
+    "i": "^0.3.7",
+    "mapbox-gl": "^3.3.0",
+    "node-polyfill-webpack-plugin": "^3.0.0",
+    "npm": "^10.8.0",
+    "react-map-gl": "^7.1.7"
+  }
+}
