@@ -1905,17 +1905,35 @@ const PlaceAutocomplete = ({
   const [placeAutocomplete, setPlaceAutocomplete] = (0,_wordpress_element__WEBPACK_IMPORTED_MODULE_4__.useState)(null);
   const inputRef = (0,_wordpress_element__WEBPACK_IMPORTED_MODULE_4__.useRef)(null);
   const places = (0,_vis_gl_react_google_maps__WEBPACK_IMPORTED_MODULE_7__.useMapsLibrary)("places");
+  const [meta, setMeta] = (0,_wordpress_core_data__WEBPACK_IMPORTED_MODULE_8__.useEntityProp)('postType', 'post', 'meta');
+
+  // Change
   (0,_wordpress_element__WEBPACK_IMPORTED_MODULE_4__.useEffect)(() => {
+    console.log("places changed");
     if (!places || !inputRef.current) return;
     const options = {
       fields: ["geometry", "name", "formatted_address"]
     };
+    // const results = new places.Autocomplete(inputRef.current, options);
+    // const results = new google.maps.places.PlaceAutocompleteElement();
+
+    // console.log("results ", results);
+
     setPlaceAutocomplete(new places.Autocomplete(inputRef.current, options));
   }, [places]);
+
+  // Change
   (0,_wordpress_element__WEBPACK_IMPORTED_MODULE_4__.useEffect)(() => {
+    console.log("onPlaceSelect, placeAutocomplete changed");
     if (!placeAutocomplete) return;
     placeAutocomplete.addListener("place_changed", () => {
+      console.log("also, 	placeAutocomplete.getPlace() occurred", placeAutocomplete.getPlace());
       onPlaceSelect(placeAutocomplete.getPlace());
+      const place = placeAutocomplete.getPlace();
+      const setmeta = setMeta({
+        geo_latitude: place.geometry.location.lat(),
+        geo_longitude: place.geometry.location.lng()
+      });
     });
   }, [onPlaceSelect, placeAutocomplete]);
   return (0,react__WEBPACK_IMPORTED_MODULE_0__.createElement)("div", {
@@ -1951,8 +1969,10 @@ function MetaModalManager() {
     callback: () => toggleSidebar(),
     context: 'block-editor'
   });
-
-  // const position = {lat: 61.2176, lng: -149.8997};
+  const alaska = {
+    lat: 61.2176,
+    lng: -149.8997
+  };
   const position = {
     lat: meta?.geo_latitude || alaska.lat,
     lng: meta?.geo_longitude || alaska.lng
@@ -1961,6 +1981,16 @@ function MetaModalManager() {
     console.log('camera changed: ', ev);
     const lat = ev.latLng.lat();
     const lng = ev.latLng.lng();
+    setMeta({
+      // ...meta,
+      geo_latitude: lat,
+      geo_longitude: lng
+    });
+  };
+  const handleRightClick = ev => {
+    console.log('right click!', ev);
+    const lat = ev.detail.latLng.lat;
+    const lng = ev.detail.latLng.lng;
     setMeta({
       // ...meta,
       geo_latitude: lat,
@@ -1989,12 +2019,14 @@ function MetaModalManager() {
       aspectRatio: "3 / 1"
     }
   }, (0,react__WEBPACK_IMPORTED_MODULE_0__.createElement)(_vis_gl_react_google_maps__WEBPACK_IMPORTED_MODULE_7__.APIProvider, {
-    apiKey: _secrets_js__WEBPACK_IMPORTED_MODULE_6__["default"]
+    apiKey: _secrets_js__WEBPACK_IMPORTED_MODULE_6__["default"],
+    version: "3"
   }, (0,react__WEBPACK_IMPORTED_MODULE_0__.createElement)(_vis_gl_react_google_maps__WEBPACK_IMPORTED_MODULE_7__.Map, {
     mapId: "geocoder_tool",
     defaultCenter: position,
     defaultZoom: 10,
-    gestureHandling: 'greedy'
+    gestureHandling: 'greedy',
+    onContextmenu: handleRightClick
   }, (0,react__WEBPACK_IMPORTED_MODULE_0__.createElement)(_vis_gl_react_google_maps__WEBPACK_IMPORTED_MODULE_7__.AdvancedMarker, {
     position: position,
     draggable: true,
@@ -2005,7 +2037,7 @@ function MetaModalManager() {
     className: "autocomplete-control"
   }, (0,react__WEBPACK_IMPORTED_MODULE_0__.createElement)(PlaceAutocomplete, {
     onPlaceSelect: setSelectedPlace
-  }))), (0,react__WEBPACK_IMPORTED_MODULE_0__.createElement)(MapHandler, {
+  })), (0,react__WEBPACK_IMPORTED_MODULE_0__.createElement)("button", null, "HEY!")), (0,react__WEBPACK_IMPORTED_MODULE_0__.createElement)(MapHandler, {
     place: selectedPlace,
     marker: marker
   }))), (0,react__WEBPACK_IMPORTED_MODULE_0__.createElement)("li", null, "Latitude? ", meta?.geo_latitude), (0,react__WEBPACK_IMPORTED_MODULE_0__.createElement)("li", null, "Longitude? ", meta?.geo_longitude), (0,react__WEBPACK_IMPORTED_MODULE_0__.createElement)(_wordpress_components__WEBPACK_IMPORTED_MODULE_3__.TextControl, {
@@ -2017,41 +2049,17 @@ function MetaModalManager() {
     })
   }), (0,react__WEBPACK_IMPORTED_MODULE_0__.createElement)(_wordpress_components__WEBPACK_IMPORTED_MODULE_3__.RadioControl, {
     label: (0,_wordpress_i18n__WEBPACK_IMPORTED_MODULE_1__.__)('Radio Field', 'block-development-examples'),
-    selected: meta?.post_meta_modal_2502fb_radio_field || '',
+    selected: meta?.geo_public || '',
     options: [{
-      label: 'Option A',
-      value: 'a'
+      label: 'Visible',
+      value: true
     }, {
-      label: 'Option B',
-      value: 'b'
-    }, {
-      label: 'Option C',
-      value: 'c'
+      label: 'Hidden',
+      value: false
     }],
     onChange: newValue => setMeta({
       ...meta,
-      post_meta_modal_2502fb_radio_field: newValue
-    })
-  }), (0,react__WEBPACK_IMPORTED_MODULE_0__.createElement)(_wordpress_components__WEBPACK_IMPORTED_MODULE_3__.SelectControl, {
-    label: (0,_wordpress_i18n__WEBPACK_IMPORTED_MODULE_1__.__)('Select Field', 'block-development-examples'),
-    value: meta?.post_meta_modal_2502fb_select_field || '',
-    options: [{
-      label: 'Select an Option',
-      value: '',
-      disabled: true
-    }, {
-      label: 'Option A',
-      value: 'a'
-    }, {
-      label: 'Option B',
-      value: 'b'
-    }, {
-      label: 'Option C',
-      value: 'c'
-    }],
-    onChange: newValue => setMeta({
-      ...meta,
-      post_meta_modal_2502fb_select_field: newValue
+      geo_public: newValue
     })
   })));
 }

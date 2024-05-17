@@ -103,23 +103,47 @@ const MapHandler = ({ place, marker }) => {
 	const [placeAutocomplete, setPlaceAutocomplete] = useState(null);
 	const inputRef = useRef(null);
 	const places = useMapsLibrary("places");
-  
+	const [ meta, setMeta ] = useEntityProp( 'postType', 'post', 'meta' );
+	
+	// Change
 	useEffect(() => {
-	  if (!places || !inputRef.current) return;
-  
-	  const options = {
-		fields: ["geometry", "name", "formatted_address"],
-	  };
-  
-	  setPlaceAutocomplete(new places.Autocomplete(inputRef.current, options));
+
+		console.log("places changed");
+		if (!places || !inputRef.current) return;
+	
+		const options = {
+			fields: ["geometry", "name", "formatted_address"],
+		};
+		// const results = new places.Autocomplete(inputRef.current, options);
+		// const results = new google.maps.places.PlaceAutocompleteElement();
+		
+		// console.log("results ", results);
+
+	  	setPlaceAutocomplete(new places.Autocomplete(inputRef.current, options));
 	}, [places]);
+
+
+	// Change
 	useEffect(() => {
-	  if (!placeAutocomplete) return;
-  
-	  placeAutocomplete.addListener("place_changed", () => {
-		onPlaceSelect(placeAutocomplete.getPlace());
-	  });
+		console.log("onPlaceSelect, placeAutocomplete changed");
+
+		if (!placeAutocomplete) return;
+
+	
+	
+		placeAutocomplete.addListener("place_changed", () => {
+			console.log("also, 	placeAutocomplete.getPlace() occurred", placeAutocomplete.getPlace());
+			onPlaceSelect(placeAutocomplete.getPlace());
+
+			const place = placeAutocomplete.getPlace();
+			const setmeta = setMeta( {
+				geo_latitude: place.geometry.location.lat(),
+				geo_longitude:  place.geometry.location.lng(),
+			} )
+
+		});
 	}, [onPlaceSelect, placeAutocomplete]);
+
 	return (
 	  <div className="autocomplete-container">
 		<input ref={inputRef} />
@@ -155,7 +179,7 @@ function MetaModalManager() {
 		context: 'block-editor',
 	} );
 
-	// const position = {lat: 61.2176, lng: -149.8997};
+	const alaska = {lat: 61.2176, lng: -149.8997};
 	const position = {lat: meta?.geo_latitude || alaska.lat, lng: meta?.geo_longitude || alaska.lng};
 
 	const handleDragChange = (ev) => {
@@ -173,7 +197,20 @@ function MetaModalManager() {
 
 	};
 
-	
+	const handleRightClick = (ev) => {
+
+		console.log('right click!', ev);
+
+		const lat = ev.detail.latLng.lat;
+		const lng =  ev.detail.latLng.lng;
+
+		setMeta( {
+			// ...meta,
+			geo_latitude: lat,
+			geo_longitude: lng,
+		} )
+		
+	};
 
 	return (
 		<>
@@ -236,8 +273,8 @@ function MetaModalManager() {
 					</Map> */}
 					 
 
-					<APIProvider apiKey={SECRET_KEY}>
-						<Map mapId="geocoder_tool" defaultCenter={position} defaultZoom={10} gestureHandling={'greedy'}>
+					<APIProvider apiKey={SECRET_KEY} version='3'>
+						<Map mapId="geocoder_tool" defaultCenter={position} defaultZoom={10} gestureHandling={'greedy'} onContextmenu={handleRightClick}>
 							<AdvancedMarker position={position} draggable onDragEnd={handleDragChange}  />
 						</Map>
 
@@ -245,6 +282,7 @@ function MetaModalManager() {
 							<div className="autocomplete-control">
 								<PlaceAutocomplete onPlaceSelect={setSelectedPlace} />
 							</div>
+							<button>HEY!</button>
 						</MapControl>
 
 						<MapHandler place={selectedPlace} marker={marker} />
@@ -275,36 +313,20 @@ function MetaModalManager() {
 							'block-development-examples'
 						) }
 						selected={
-							meta?.post_meta_modal_2502fb_radio_field || ''
+							meta?.geo_public || ''
 						}
 						options={ [
-							{ label: 'Option A', value: 'a', },
-							{ label: 'Option B', value: 'b', },
-							{ label: 'Option C', value: 'c', },
+							{ label: 'Visible', value: true, },
+							{ label: 'Hidden', value: false, },
 						] }
 						onChange={ ( newValue ) =>
 							setMeta( {
 								...meta,
-								post_meta_modal_2502fb_radio_field: newValue,
+								geo_public: newValue,
 							} )
 						}
 					/>
-					<SelectControl
-						label={ __('Select Field', 'block-development-examples') }
-						value={ meta?.post_meta_modal_2502fb_select_field || ''}
-						options={ [
-							{ label: 'Select an Option', value: '', disabled: true },
-							{ label: 'Option A', value: 'a', },
-							{ label: 'Option B', value: 'b', },
-							{ label: 'Option C', value: 'c', },
-						] }
-						onChange={ ( newValue ) =>
-							setMeta( {
-								...meta,
-								post_meta_modal_2502fb_select_field: newValue,
-							})
-						}
-					/>
+					
 					
 				</Modal>
 			) }
