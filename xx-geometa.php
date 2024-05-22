@@ -114,6 +114,7 @@ function post_meta_modal_2502fb_register_post_meta() {
 			'type'         => 'string',
 		)
 	);
+	/*
 	register_post_meta(
 		'post',
 		'geo_title',
@@ -123,5 +124,6 @@ function post_meta_modal_2502fb_register_post_meta() {
 			'type'         => 'string',
 		)
 	);
+	*/
 }
 add_action( 'init', 'post_meta_modal_2502fb_register_post_meta' );

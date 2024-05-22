@@ -1881,6 +1881,46 @@ function toggleSidebar() {
     (0,_wordpress_data__WEBPACK_IMPORTED_MODULE_9__.dispatch)('core/edit-post').openGeneralSidebar('block-development-examples-post-meta-modal-2502fb/geolocation-sidebar-plugin');
   }
 }
+const SetCenter = props => {
+  const map = (0,_vis_gl_react_google_maps__WEBPACK_IMPORTED_MODULE_7__.useMap)();
+  const [meta, setMeta] = (0,_wordpress_core_data__WEBPACK_IMPORTED_MODULE_8__.useEntityProp)('postType', 'post', 'meta');
+  const [isStreetView, setisStreetView] = (0,_wordpress_element__WEBPACK_IMPORTED_MODULE_4__.useState)(false);
+  // const streetView = useMapsLibrary("streetView");
+
+  const getCenter = click => {
+    // Get Map Centerpoint
+    let activeCenter = {
+      lat: map.center.lat(),
+      lng: map.center.lng()
+    };
+
+    // Use the Streetview location when Streetview is visible
+    if (map.streetView.visible) {
+      activeCenter = {
+        lat: map.streetView.position.lat(),
+        lng: map.streetView.position.lng()
+      };
+    }
+    setisStreetView(map.streetView.visible ? true : false);
+    console.log("map was", map);
+    console.log("center was", activeCenter);
+
+    // Set Meta
+    setMeta({
+      ...meta,
+      geo_latitude: activeCenter.lat,
+      geo_longitude: activeCenter.lng
+    });
+
+    // Set Map Center
+    map.setCenter(activeCenter);
+  };
+  return (0,react__WEBPACK_IMPORTED_MODULE_0__.createElement)("div", {
+    className: "center-control"
+  }, (0,react__WEBPACK_IMPORTED_MODULE_0__.createElement)("button", {
+    onClick: getCenter
+  }, "Set Position"));
+};
 
 //   Map Handler
 const MapHandler = ({
@@ -1906,6 +1946,7 @@ const PlaceAutocomplete = ({
   const inputRef = (0,_wordpress_element__WEBPACK_IMPORTED_MODULE_4__.useRef)(null);
   const places = (0,_vis_gl_react_google_maps__WEBPACK_IMPORTED_MODULE_7__.useMapsLibrary)("places");
   const [meta, setMeta] = (0,_wordpress_core_data__WEBPACK_IMPORTED_MODULE_8__.useEntityProp)('postType', 'post', 'meta');
+  const map = (0,_vis_gl_react_google_maps__WEBPACK_IMPORTED_MODULE_7__.useMap)();
 
   // Change
   (0,_wordpress_element__WEBPACK_IMPORTED_MODULE_4__.useEffect)(() => {
@@ -1931,9 +1972,15 @@ const PlaceAutocomplete = ({
       onPlaceSelect(placeAutocomplete.getPlace());
       const place = placeAutocomplete.getPlace();
       const setmeta = setMeta({
+        ...meta,
         geo_latitude: place.geometry.location.lat(),
         geo_longitude: place.geometry.location.lng()
       });
+
+      // Reset Center
+      if (map) {
+        map.fitBounds(place.geometry?.viewport);
+      }
     });
   }, [onPlaceSelect, placeAutocomplete]);
   return (0,react__WEBPACK_IMPORTED_MODULE_0__.createElement)("div", {
@@ -1946,7 +1993,11 @@ function MetaModalManager() {
   const [isModalOpen, setModalOpen] = (0,_wordpress_element__WEBPACK_IMPORTED_MODULE_4__.useState)(false);
   const [meta, setMeta] = (0,_wordpress_core_data__WEBPACK_IMPORTED_MODULE_8__.useEntityProp)('postType', 'post', 'meta');
   const [selectedPlace, setSelectedPlace] = (0,_wordpress_element__WEBPACK_IMPORTED_MODULE_4__.useState)(null);
+  // const [ ideal, SetCenter] = useState(null);
+
+  // SetCenter
   const [markerRef, marker] = (0,_vis_gl_react_google_maps__WEBPACK_IMPORTED_MODULE_7__.useAdvancedMarkerRef)();
+  console.log("selectedPlace is: ", selectedPlace);
 
   // const [ lat, setLat] = useState(meta?.geo_latitude || "61.2176");
   // const [ lng, setLng] = useState(meta?.geo_latitude || "-149.8997");
@@ -1982,20 +2033,22 @@ function MetaModalManager() {
     const lat = ev.latLng.lat();
     const lng = ev.latLng.lng();
     setMeta({
-      // ...meta,
+      ...meta,
       geo_latitude: lat,
       geo_longitude: lng
     });
+    // setSelectedPlace(ev);
   };
   const handleRightClick = ev => {
     console.log('right click!', ev);
     const lat = ev.detail.latLng.lat;
     const lng = ev.detail.latLng.lng;
     setMeta({
-      // ...meta,
+      ...meta,
       geo_latitude: lat,
       geo_longitude: lng
     });
+    // setSelectedPlace(ev);
   };
   return (0,react__WEBPACK_IMPORTED_MODULE_0__.createElement)(react__WEBPACK_IMPORTED_MODULE_0__.Fragment, null, (0,react__WEBPACK_IMPORTED_MODULE_0__.createElement)(_wordpress_edit_post__WEBPACK_IMPORTED_MODULE_5__.PluginSidebarMoreMenuItem, {
     target: "geolocation-sidebar-plugin",
@@ -2004,48 +2057,34 @@ function MetaModalManager() {
     name: "geolocation-sidebar-plugin",
     icon: "admin-site-alt",
     title: "Geolocation"
-  }, (0,react__WEBPACK_IMPORTED_MODULE_0__.createElement)(react__WEBPACK_IMPORTED_MODULE_0__.Fragment, null, (0,react__WEBPACK_IMPORTED_MODULE_0__.createElement)("h3", null, "Current Geodata:"), (0,react__WEBPACK_IMPORTED_MODULE_0__.createElement)("ul", null, (0,react__WEBPACK_IMPORTED_MODULE_0__.createElement)("li", null, "Title: ", meta?.geo_title), (0,react__WEBPACK_IMPORTED_MODULE_0__.createElement)("li", null, "Address? ", meta?.geo_address), (0,react__WEBPACK_IMPORTED_MODULE_0__.createElement)("li", null, "Latitude? ", meta?.geo_latitude), (0,react__WEBPACK_IMPORTED_MODULE_0__.createElement)("li", null, "Longitude? ", meta?.geo_longitude), (0,react__WEBPACK_IMPORTED_MODULE_0__.createElement)("li", null, "Public? ", meta?.geo_public)), (0,react__WEBPACK_IMPORTED_MODULE_0__.createElement)("button", {
+  }, (0,react__WEBPACK_IMPORTED_MODULE_0__.createElement)(react__WEBPACK_IMPORTED_MODULE_0__.Fragment, null, (0,react__WEBPACK_IMPORTED_MODULE_0__.createElement)("h3", null, "Current Geodata:"), (0,react__WEBPACK_IMPORTED_MODULE_0__.createElement)("ul", null, (0,react__WEBPACK_IMPORTED_MODULE_0__.createElement)("li", null, "Address? ", meta?.geo_address), (0,react__WEBPACK_IMPORTED_MODULE_0__.createElement)("li", null, "Latitude? ", meta?.geo_latitude), (0,react__WEBPACK_IMPORTED_MODULE_0__.createElement)("li", null, "Longitude? ", meta?.geo_longitude), (0,react__WEBPACK_IMPORTED_MODULE_0__.createElement)("li", null, "Public? ", meta?.geo_public)), (0,react__WEBPACK_IMPORTED_MODULE_0__.createElement)("button", {
     onClick: () => setModalOpen(true)
   }, "Edit"))), isModalOpen && (0,react__WEBPACK_IMPORTED_MODULE_0__.createElement)(_wordpress_components__WEBPACK_IMPORTED_MODULE_3__.Modal, {
     className: "post_meta_modal_2502fb_container",
     title: (0,_wordpress_i18n__WEBPACK_IMPORTED_MODULE_1__.__)('Edit Geolocation Data', 'block-development-examples'),
-    onRequestClose: () => setModalOpen(false)
-    // size="large"
-    ,
+    onRequestClose: () => setModalOpen(false),
     isFullScreen: true
-  }, "Befire", (0,react__WEBPACK_IMPORTED_MODULE_0__.createElement)("div", {
-    style: {
-      position: "relative",
-      aspectRatio: "3 / 1"
-    }
+    // size='large'
   }, (0,react__WEBPACK_IMPORTED_MODULE_0__.createElement)(_vis_gl_react_google_maps__WEBPACK_IMPORTED_MODULE_7__.APIProvider, {
     apiKey: _secrets_js__WEBPACK_IMPORTED_MODULE_6__["default"],
     version: "3"
-  }, (0,react__WEBPACK_IMPORTED_MODULE_0__.createElement)(_vis_gl_react_google_maps__WEBPACK_IMPORTED_MODULE_7__.Map, {
-    mapId: "geocoder_tool",
-    defaultCenter: position,
-    defaultZoom: 10,
-    gestureHandling: 'greedy',
-    onContextmenu: handleRightClick
-  }, (0,react__WEBPACK_IMPORTED_MODULE_0__.createElement)(_vis_gl_react_google_maps__WEBPACK_IMPORTED_MODULE_7__.AdvancedMarker, {
-    position: position,
-    draggable: true,
-    onDragEnd: handleDragChange
-  })), (0,react__WEBPACK_IMPORTED_MODULE_0__.createElement)(_vis_gl_react_google_maps__WEBPACK_IMPORTED_MODULE_7__.MapControl, {
-    position: _vis_gl_react_google_maps__WEBPACK_IMPORTED_MODULE_7__.ControlPosition.TOP
   }, (0,react__WEBPACK_IMPORTED_MODULE_0__.createElement)("div", {
-    className: "autocomplete-control"
-  }, (0,react__WEBPACK_IMPORTED_MODULE_0__.createElement)(PlaceAutocomplete, {
-    onPlaceSelect: setSelectedPlace
-  })), (0,react__WEBPACK_IMPORTED_MODULE_0__.createElement)("button", null, "HEY!")), (0,react__WEBPACK_IMPORTED_MODULE_0__.createElement)(MapHandler, {
-    place: selectedPlace,
-    marker: marker
-  }))), (0,react__WEBPACK_IMPORTED_MODULE_0__.createElement)("li", null, "Latitude? ", meta?.geo_latitude), (0,react__WEBPACK_IMPORTED_MODULE_0__.createElement)("li", null, "Longitude? ", meta?.geo_longitude), (0,react__WEBPACK_IMPORTED_MODULE_0__.createElement)(_wordpress_components__WEBPACK_IMPORTED_MODULE_3__.TextControl, {
-    label: (0,_wordpress_i18n__WEBPACK_IMPORTED_MODULE_1__.__)('Text Field', 'block-development-examples'),
-    value: meta?.geo_title || '',
+    className: "modal"
+  }, (0,react__WEBPACK_IMPORTED_MODULE_0__.createElement)("div", {
+    className: "modal__controls"
+  }, (0,react__WEBPACK_IMPORTED_MODULE_0__.createElement)("ul", null, (0,react__WEBPACK_IMPORTED_MODULE_0__.createElement)("li", null, "Latitude? ", meta?.geo_latitude), (0,react__WEBPACK_IMPORTED_MODULE_0__.createElement)("li", null, "Longitude? ", meta?.geo_longitude)), (0,react__WEBPACK_IMPORTED_MODULE_0__.createElement)(_wordpress_components__WEBPACK_IMPORTED_MODULE_3__.TextControl, {
+    label: (0,_wordpress_i18n__WEBPACK_IMPORTED_MODULE_1__.__)('Geo Address', 'block-development-examples'),
+    value: meta?.geo_address || '',
     onChange: newValue => setMeta({
       ...meta,
-      geo_title: newValue
+      geo_addres: newValue
+    })
+  }), (0,react__WEBPACK_IMPORTED_MODULE_0__.createElement)(_wordpress_components__WEBPACK_IMPORTED_MODULE_3__.TextControl, {
+    label: (0,_wordpress_i18n__WEBPACK_IMPORTED_MODULE_1__.__)('Geo Address', 'block-development-examples'),
+    value: meta?.geo_address || '',
+    onChange: newValue => setMeta({
+      ...meta,
+      geo_address: newValue
     })
   }), (0,react__WEBPACK_IMPORTED_MODULE_0__.createElement)(_wordpress_components__WEBPACK_IMPORTED_MODULE_3__.RadioControl, {
     label: (0,_wordpress_i18n__WEBPACK_IMPORTED_MODULE_1__.__)('Radio Field', 'block-development-examples'),
@@ -2061,7 +2100,32 @@ function MetaModalManager() {
       ...meta,
       geo_public: newValue
     })
-  })));
+  }), (0,react__WEBPACK_IMPORTED_MODULE_0__.createElement)(SetCenter, null)), (0,react__WEBPACK_IMPORTED_MODULE_0__.createElement)("div", {
+    className: "modal__map"
+  }, (0,react__WEBPACK_IMPORTED_MODULE_0__.createElement)(_vis_gl_react_google_maps__WEBPACK_IMPORTED_MODULE_7__.Map, {
+    mapId: "geocoder_tool",
+    defaultCenter: position,
+    defaultZoom: 13,
+    gestureHandling: 'greedy',
+    onContextmenu: handleRightClick,
+    fullscreenControl: false,
+    streetViewControlOptions: {
+      position: _vis_gl_react_google_maps__WEBPACK_IMPORTED_MODULE_7__.ControlPosition.TOP_RIGHT
+    }
+  }, (0,react__WEBPACK_IMPORTED_MODULE_0__.createElement)(_vis_gl_react_google_maps__WEBPACK_IMPORTED_MODULE_7__.AdvancedMarker, {
+    position: position,
+    draggable: true,
+    onDragEnd: handleDragChange
+  })), (0,react__WEBPACK_IMPORTED_MODULE_0__.createElement)(_vis_gl_react_google_maps__WEBPACK_IMPORTED_MODULE_7__.MapControl, {
+    position: _vis_gl_react_google_maps__WEBPACK_IMPORTED_MODULE_7__.ControlPosition.TOP_CENTER
+  }, (0,react__WEBPACK_IMPORTED_MODULE_0__.createElement)("div", {
+    className: "autocomplete-control"
+  }, (0,react__WEBPACK_IMPORTED_MODULE_0__.createElement)(PlaceAutocomplete, {
+    onPlaceSelect: setSelectedPlace
+  }))), (0,react__WEBPACK_IMPORTED_MODULE_0__.createElement)(SetCenter, null), (0,react__WEBPACK_IMPORTED_MODULE_0__.createElement)(MapHandler, {
+    place: selectedPlace,
+    marker: marker
+  }))))));
 }
 (0,_wordpress_plugins__WEBPACK_IMPORTED_MODULE_2__.registerPlugin)('block-development-examples-post-meta-modal-2502fb', {
   render: MetaModalManager

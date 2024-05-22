@@ -3,6 +3,14 @@
  */
 .post_meta_modal_2502fb_container {
 
+	// Outline the first div (because React)
+	.components-modal__header + div{
+		// outline: solid 8px purple;
+		// min-height:100%;
+		height: 100%;
+	}
+
+
 	.components-modal__content {
 
 		> div:not(.components-modal__header) {
@@ -22,12 +30,29 @@
 	}
 
 	.autocomplete-control {
-	margin: 24px;
-	background: #fff;
+	// margin: 24px;
+	// background: #fff;
+	padding: 10px 10px 0 0;	
+	pointer-events: none;
+	@media(max-width:1100px){
+			width:100%;
+			padding-top:50px;
+		}
 	}
 
 	.autocomplete-container {
-	width: 300px;
+		width: 100%;
+		
+		padding-top:10px;
+		// background:white;
+		pointer-events: all;
+	
+		@media(min-width:1100px){
+			width:320px;
+			padding-top:0;
+			// padding-top:50px;
+		}
+			
 	}
 
 	.autocomplete-container input {
@@ -49,9 +74,105 @@
 	}
 
 	.autocomplete-container .custom-list-item:hover {
-	background: lightgrey;
-	cursor: pointer;
+		background: lightgrey;
+		cursor: pointer;
 	}
+
+	// *{
+	// 	outline:solid 1px blue;
+	// }
+
+	// Modal
+	.modal{
+		display:flex;
+		height: 100%;
+	}
+	.modal__ratio{
+		aspect-ratio: 2/1;
+	}
+	.modal__controls{
+		width:250px;
+		// padding-right:30px;
+		padding:20px;
+		background: #eee;
+    	border-radius: 10px 0 0 10px;
+		display: flex;
+		flex-direction: column;
+	}
+	.modal__map{
+		position: relative;
+		width:calc(100% - 250px);
+		border-radius: 0 10px 10px 0;
+		overflow:hidden;
+	}
+
+	// Fullscreen Controls
+	button[title="Toggle fullscreen view"]{
+		// outline: solid 2px orange;
+		display:none;
+	}
+
+
+}
+/*
+// Hide the Autocomplete control when in fullscreen
+// It won't work reliably anyway due to layering issues
+:fullscreen .autocomplete-control{
+	display:none;
+}
+*/
+.center-control{
+//   outline:solid 10px red;
+// top: 10px;
+// right: 10px;
+	// position: absolute;
+	// top: 10px;
+	// right: 10px;
+//   padding-bottom:20px;
+//   position: absolute;
+
+	margin-top:auto;
+
+
+  button{
+	width:100%;
+	padding: 10px 20px;
+    font-size: initial;
+	background-color: #fff;
+	border:solid 1px #ccc;
+	border-radius: 2px;
+	// min-width:200px;
+  }
 }
 
+.pac-container{
+	background-color: #fff;
+    position: absolute !important;
+    z-index: 100001; // one more than the modal!
+    border-radius: 2px;
+    border-top: 1px solid #d9d9d9;
+    font-family: Arial, sans-serif;
+    -webkit-box-shadow: 0 2px 6px rgba(0,0,0,.3);
+    box-shadow: 0 2px 6px rgba(0,0,0,.3);
+    -webkit-box-sizing: border-box;
+    box-sizing: border-box;
+    overflow: hidden;
+}
 
+// .pac-container, .pac-item{
+//     z-index: 2147483647 !important;
+//  }
+
+
+.xx-geometa-map{
+	position: relative ;
+	aspect-ratio: 3 / 1;
+
+	button{
+		width:200px;
+		bottom:20px;
+		left:calc(50% - 100px);
+		position:absolute;
+
+	}
+}

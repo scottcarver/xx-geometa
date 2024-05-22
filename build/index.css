@@ -4,6 +4,9 @@
 /**
  * Editor-specific styles.
  */
+.post_meta_modal_2502fb_container .components-modal__header + div {
+  height: 100%;
+}
 .post_meta_modal_2502fb_container .components-modal__content > div:not(.components-modal__header) {
   display: flex;
   flex-direction: column;
@@ -14,11 +17,25 @@
   box-sizing: border-box;
 }
 .post_meta_modal_2502fb_container .autocomplete-control {
-  margin: 24px;
-  background: #fff;
+  padding: 10px 10px 0 0;
+  pointer-events: none;
+}
+@media (max-width: 1100px) {
+  .post_meta_modal_2502fb_container .autocomplete-control {
+    width: 100%;
+    padding-top: 50px;
+  }
 }
 .post_meta_modal_2502fb_container .autocomplete-container {
-  width: 300px;
+  width: 100%;
+  padding-top: 10px;
+  pointer-events: all;
+}
+@media (min-width: 1100px) {
+  .post_meta_modal_2502fb_container .autocomplete-container {
+    width: 320px;
+    padding-top: 0;
+  }
 }
 .post_meta_modal_2502fb_container .autocomplete-container input {
   width: 100%;
@@ -38,6 +55,72 @@
 .post_meta_modal_2502fb_container .autocomplete-container .custom-list-item:hover {
   background: lightgrey;
   cursor: pointer;
+}
+.post_meta_modal_2502fb_container .modal {
+  display: flex;
+  height: 100%;
+}
+.post_meta_modal_2502fb_container .modal__ratio {
+  aspect-ratio: 2/1;
+}
+.post_meta_modal_2502fb_container .modal__controls {
+  width: 250px;
+  padding: 20px;
+  background: #eee;
+  border-radius: 10px 0 0 10px;
+  display: flex;
+  flex-direction: column;
+}
+.post_meta_modal_2502fb_container .modal__map {
+  position: relative;
+  width: calc(100% - 250px);
+  border-radius: 0 10px 10px 0;
+  overflow: hidden;
+}
+.post_meta_modal_2502fb_container button[title="Toggle fullscreen view"] {
+  display: none;
+}
+
+/*
+// Hide the Autocomplete control when in fullscreen
+// It won't work reliably anyway due to layering issues
+:fullscreen .autocomplete-control{
+	display:none;
+}
+*/
+.center-control {
+  margin-top: auto;
+}
+.center-control button {
+  width: 100%;
+  padding: 10px 20px;
+  font-size: initial;
+  background-color: #fff;
+  border: solid 1px #ccc;
+  border-radius: 2px;
+}
+
+.pac-container {
+  background-color: #fff;
+  position: absolute !important;
+  z-index: 100001;
+  border-radius: 2px;
+  border-top: 1px solid #d9d9d9;
+  font-family: Arial, sans-serif;
+  box-shadow: 0 2px 6px rgba(0, 0, 0, 0.3);
+  box-sizing: border-box;
+  overflow: hidden;
+}
+
+.xx-geometa-map {
+  position: relative;
+  aspect-ratio: 3/1;
+}
+.xx-geometa-map button {
+  width: 200px;
+  bottom: 20px;
+  left: calc(50% - 100px);
+  position: absolute;
 }
 
 /*# sourceMappingURL=index.css.map*/
