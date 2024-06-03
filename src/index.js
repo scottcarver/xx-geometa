@@ -5,11 +5,13 @@ import { __ } from '@wordpress/i18n';
 import { registerPlugin } from '@wordpress/plugins';
 import {
 	Modal,
-	RadioControl,
-	SelectControl,
 	TextControl,
+	Button,
+	ToggleControl,
+	BaseControl,
+	__experimentalNumberControl as NumberControl
 } from '@wordpress/components';
-import { useState, useCallback, useEffect, useRef } from '@wordpress/element';
+import { useState, useEffect, useRef } from '@wordpress/element';
 import { PluginPostPublishPanel, PluginSidebarMoreMenuItem, PluginMoreMenuItem, PluginSidebar, PluginDocumentSettingPanel} from '@wordpress/edit-post';
 import SECRET_KEY from './secrets.js';
 
@@ -38,22 +40,6 @@ import { blockMeta, stack, plusCircle, aspectRatio } from '@wordpress/icons';
  */
 import './index.scss';
 
-
-
-/*
-function App() {
-  return <Map
-    mapLib={import('mapbox-gl')}
-    initialViewState={{
-      longitude: -100,
-      latitude: 40,
-      zoom: 3.5
-    }}
-    style={{width: 600, height: 400}}
-    mapStyle="mapbox://styles/mapbox/streets-v9"
-  />;
-}
-*/
 
 
 
@@ -85,7 +71,11 @@ function toggleSidebar (){
 
 const SetCenter = (props) => {
 	const map = useMap();
-	const [ meta, setMeta ] = useEntityProp( 'postType', 'post', 'meta' );
+	// const [ meta, setMeta ] = useEntityProp( 'postType', 'post', 'meta' );
+	const postType = select('core/editor').getCurrentPostType();
+	const [meta, setMeta] = useEntityProp('postType', postType, 'meta');
+	console.log("POSTTYPE! " + postType);
+
 	const [ isStreetView, setisStreetView ] = useState(false);
 	// const streetView = useMapsLibrary("streetView");
 
@@ -99,7 +89,6 @@ const SetCenter = (props) => {
 		}
 
 		setisStreetView(map.streetView.visible ? true : false);
-
 
 		console.log("map was", map);
 		console.log("center was", activeCenter);
@@ -119,7 +108,7 @@ const SetCenter = (props) => {
 	return(
 		<div className="center-control">
 			{/* {JSON.stringify(props.position)} */}
-				<button  onClick={getCenter}>Set Position</button>
+			<Button  onClick={getCenter} variant="secondary">Set Position to Map Center</Button>
 		</div>
 	);
 }
@@ -149,7 +138,11 @@ const MapHandler = ({ place, marker }) => {
 	const inputRef = useRef(null);
 	const places = useMapsLibrary("places");
 	
-	const [ meta, setMeta ] = useEntityProp( 'postType', 'post', 'meta' );
+	// const [ meta, setMeta ] = useEntityProp( 'postType', 'post', 'meta' )
+	const postType = select('core/editor').getCurrentPostType();
+	const [meta, setMeta] = useEntityProp('postType', postType, 'meta');
+	console.log("POSTTYPE! " + postType);
+	
 	const map = useMap();
 
 	// Change
@@ -187,6 +180,7 @@ const MapHandler = ({ place, marker }) => {
 				...meta,
 				geo_latitude: place.geometry.location.lat(),
 				geo_longitude:  place.geometry.location.lng(),
+				geo_address: place.formatted_address
 			} )
 
 			// Reset Center
@@ -205,8 +199,13 @@ const MapHandler = ({ place, marker }) => {
 
 function MetaModalManager() {
 	const [ isModalOpen, setModalOpen ] = useState( false );
-	const [ meta, setMeta ] = useEntityProp( 'postType', 'post', 'meta' );
+	// const [ meta, setMeta ] = useEntityProp( 'postType', 'post', 'meta' )
+	const postType = select('core/editor').getCurrentPostType();
+	const [meta, setMeta] = useEntityProp('postType', postType, 'meta');
+	console.log("POSTTYPE! " + postType);
+
 	const [ selectedPlace, setSelectedPlace] = useState(null);
+	const [ isEditing, setIsEditing] = useState(false);
 	// const [ ideal, SetCenter] = useState(null);
 
 	
@@ -255,19 +254,20 @@ function MetaModalManager() {
 		// setSelectedPlace(ev);
 	};
 
+	// Handle Right Click
 	const handleRightClick = (ev) => {
 
-		console.log('right click!', ev);
+		// console.log('right click!', ev);
 
 		const lat = ev.detail.latLng.lat;
 		const lng =  ev.detail.latLng.lng;
 
-		setMeta( {
+		setMeta({
 			...meta,
 			geo_latitude: lat,
 			geo_longitude: lng,
-		} )
-		// setSelectedPlace(ev);
+		})
+		
 	};
 
 	return (
@@ -276,6 +276,16 @@ function MetaModalManager() {
 			<PluginSidebarMoreMenuItem target="geolocation-sidebar-plugin" icon="admin-site-alt">
 			 	Geolocation Data
 			</PluginSidebarMoreMenuItem>
+
+			<PluginDocumentSettingPanel  
+				name="custom-panel"
+				title="Custom Panel"
+				className="custom-panel"
+				icon="smiley"
+				isPluginSidebarOpened={false}
+			>
+				<p>{ __('This is my custom panel content.', 'text-domain') }</p>
+			</PluginDocumentSettingPanel>
 		
 			{/* Sidebar Content */}
 			<PluginSidebar name="geolocation-sidebar-plugin" icon="admin-site-alt" title="Geolocation">
@@ -286,6 +296,8 @@ function MetaModalManager() {
 				
 				/>*/}
 				<>
+
+			
 				<h3>Current Geodata:</h3>					
 				<ul>
 					{/* <li>Title: {meta?.geo_title}</li> */}
@@ -295,7 +307,27 @@ function MetaModalManager() {
 					<li>Public? {meta?.geo_public}</li>
 		
 				</ul>
-				<button onClick={ () => setModalOpen( true ) }>Edit</button>
+				<button onClick={ () => setModalOpen( true ) }>Edit Data</button>
+
+				{/* <TextControl
+					label={ __(
+						'Longitude',
+						'block-development-examples'
+					) }
+					value={ meta?.geo_longitude || '' }
+					onChange={ ( newValue ) =>
+						setMeta({ ...meta, geo_longitude: newValue, })
+						// console.log("NEWNWE IS: ", newValue)
+					}
+					min="-180"
+					max="180"
+					steps=".01"
+					type="number"
+					help="Decimal degrees -180 to 180 (negative values are in the western hemisphere)."
+				/> */}
+
+		
+
 				</>
 			</PluginSidebar>
 			
@@ -317,35 +349,116 @@ function MetaModalManager() {
 
 						{/* Controls  */}
 						<div className="modal__controls">
-						
-							<ul>
+							
+
+							{/* <ul>
 								<li>Latitude? {meta?.geo_latitude}</li>
 								<li>Longitude? {meta?.geo_longitude}</li>
-							</ul>
+							</ul> */}
+
+
+							<BaseControl label="Public?">
+								<br />
+								{/* <FormToggle
+										checked={ meta?.geo_public || '' }
+										// onChange={ ( newValue ) => setMeta({ geo_public: newValue ? 0 : 1 }) }
+										onChange={ ( newValue ) => 
+										// console.log(newValue.target.checked)
+										setMeta({ geo_public: newValue.target.checked ? 1 : 0 }) 
+									}
+									/> */}
+
+								<ToggleControl
+									label={ meta?.geo_public ? "Yes" : "No" }
+									checked={ meta?.geo_public || '' }
+									help={ meta?.geo_public ? "Location data is visible." : "Location data is hidden." }  
+									onChange={ ( newValue ) =>  setMeta({ geo_public: newValue ? 1 : 0 }) }
+								/>
+
+
+							</BaseControl>
 
 							<TextControl
 								label={ __(
-									'Geo Address',
-									'block-development-examples'
-								) }
-								value={ meta?.geo_address || '' }
-								onChange={ ( newValue ) =>
-									setMeta({ ...meta, geo_addres: newValue, })
-								}
-							/>
-							
-							<TextControl
-								label={ __(
-									'Geo Address',
+									'Address',
 									'block-development-examples'
 								) }
 								value={ meta?.geo_address || '' }
 								onChange={ ( newValue ) =>
 									setMeta({ ...meta, geo_address: newValue, })
 								}
+								help="Freeform textual description of coordinates."
 							/>
+
+
+								<NumberControl
+									label={ __(
+										'Latitude',
+										'block-development-examples'
+									) }
+									step=".001"
+									isShiftStepEnabled={ true }
+									onChange={ ( newValue ) =>
+										setMeta({ ...meta, geo_latitude: Number(newValue), })
+										// console.log("NEWNWE IS: ", newValue)
+									}
+									shiftStep={ 10 }
+									min="-90"
+									max="90"
+									value={ meta?.geo_latitude || '' }
+									help="Decimal degrees -90 to 90 (negative values are in the southern hemisphere)."
+								/>
+
+							{/*
+							<TextControl
+								label={ __(
+									'Latitude',
+									'block-development-examples'
+								) }
+								value={ meta?.geo_latitude || '' }
+								onChange={ ( newValue ) =>
+									setMeta({ ...meta, geo_latitude: newValue, })
+								}
+								type="number"
+								help="Decimal degrees -90 to 90 (negative values are in the southern hemisphere)."
+							/>
+
+							 <TextControl
+								label={ __(
+									'Longitude',
+									'block-development-examples'
+								) }
+								value={ meta?.geo_longitude || '' }
+								onChange={ ( newValue ) =>
+									setMeta({ ...meta, geo_longitude: Number(newValue), })
+									// console.log("NEWNWE IS: ", newValue, typeof(newValue))
+								}
+								min="-180"
+								max="180"
+								type="number"
+								help="Decimal degrees -180 to 180 (negative values are in the western hemisphere)."
+							/> */}
+
+							<NumberControl
+								label={ __(
+									'Longitude',
+									'block-development-examples'
+								) }
+								step=".001"
+								isShiftStepEnabled={ true }
+								onChange={ ( newValue ) =>
+									setMeta({ ...meta, geo_longitude: Number(newValue), })
+									// console.log("NEWNWE IS: ", newValue)
+								}
+								shiftStep={ 10 }
+								min="-180"
+								max="180"
+								value={ meta?.geo_longitude || '' }
+								help="Decimal degrees -180 to 180 (negative values are in the western hemisphere)."
+							/>
+
 							
-							<RadioControl
+							{/* <RadioControl
 								label={ __('Radio Field', 'block-development-examples') }
 								selected={ meta?.geo_public || ''}
 								options={[
@@ -353,8 +466,8 @@ function MetaModalManager() {
 									{ label: 'Hidden', value: false, },
 								]}
 								onChange={ ( newValue ) => setMeta({ ...meta, geo_public: newValue, }) }
-							/>
-							
+							/> */}
+
 							{/* Set Center */}
 							<SetCenter />
 
@@ -377,7 +490,11 @@ function MetaModalManager() {
 									fullscreenControl={false}
 									streetViewControlOptions={{position: ControlPosition.TOP_RIGHT}}
 								>
-									<AdvancedMarker position={position} draggable onDragEnd={handleDragChange}  />
+
+									What is {JSON.stringify(position)}
+									{position &&
+										<AdvancedMarker position={position} draggable onDragEnd={handleDragChange}  />
+									}
 								</Map>
 
 								{/* AutoSelect Tool */}

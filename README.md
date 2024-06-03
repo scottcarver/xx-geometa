@@ -1,30 +1,32 @@
-### Post Meta Modal 2502fb
+### Geodata Manager
 
-This example adds a modal in the Post Editor that allows users to define custom post metadata without having to use the legacy Custom Fields meta box.
+## Overview
+This plugin registers custom fields related to managing geographic data in WordPress. 
 
 <img src="https://github.com/WordPress/block-development-examples/blob/trunk/plugins/post-meta-modal-2502fb/_assets/post-meta-modal.gif"/>
 
-<!-- Please, do not remove these @TABLE EXAMPLES BEGIN and @TABLE EXAMPLES END comments or modify the table inside. This table is automatically generated from the data at _data/examples.json and _data/tags.json -->
-<!-- @TABLE EXAMPLES BEGIN -->
-| Folder                                                                                                  | <span style="display: inline-block; width:250px">Short description</span> | Tags                                                                                                                                                                                                                                                       | ID ([❓](https://github.com/WordPress/block-development-examples/wiki/04-Why-an-ID-for-every-example%3F "Why an ID for every example?")) | Download .zip                                                                                                          | Live Demo                                                                                                                                                                                                                                                                                          |
-| ------------------------------------------------------------------------------------------------------- | ------------------------------------------------------------------------- | ---------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- | --------------------------------------------------------------------------------------------------------------------------------------- | ---------------------------------------------------------------------------------------------------------------------- | -------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
-| [📁](https://github.com/WordPress/block-development-examples/tree/trunk/plugins/post-meta-modal-2502fb) | Post Meta Modal                                                           | <small><code><a href="https://github.com/WordPress/block-development-examples/wiki/03-Tags#meta">META</a></code></small>, <small><code><a href="https://github.com/WordPress/block-development-examples/wiki/03-Tags#no-block">NO BLOCK</a></code></small> | `2502fb`                                                                                                                                | [📦](https://raw.githubusercontent.com/WordPress/block-development-examples/deploy/zips/post-meta-modal-2502fb.zip "") | [![](https://raw.githubusercontent.com/WordPress/block-development-examples/trunk/_assets/icon-wp.svg)](https://playground.wordpress.net/?blueprint-url=https://raw.githubusercontent.com/WordPress/block-development-examples/trunk/plugins/post-meta-modal-2502fb/_playground/blueprint.json "") |
-<!-- @TABLE EXAMPLES END -->
+## Features
+- registers the standard `geo_latitude` / `geo_longitude` / `geo_public` / `geo_address` values defined in the [WP Geodata documentation](https://codex.wordpress.org/Geodata)
+- modern Gutenberg based editing interface allows users to manage these fields, with inputs restricted to only allow valid data.
+- when the Google API is enabled (and properly accredited) the user will also have access to a high-end interface for choosing your own locations.
+- The modal can be opened using the Options panel or the Command Palette (`cmd + k`). The full commands are "Edit Geolocation data" and "Toggle Geolocation Panel" - for practical purposes typing "geo" in the search field will surface these uptions.
 
-## Overview
+## Todo:
+- Optimize aspects of the plugin to your preferences from an options page.
+- include preference for optional/required fields which reflect the spec, and potentially W3C fields
+- add an animated gif under the overview section
+- instead of using secrets.js, adopt a standardized approach
+- make the preview sidebar look nicer
+- design and add custom iconography for sidebar and commands
 
-This example does two things. First, it registers [three custom fields](https://github.com/WordPress/block-development-examples/blob/125ca3add64768323c738e477246dbc8f2e202f4/plugins/post-meta-modal-2502fb/post-meta-modal-2502fb.php#L50) for posts. Then it [registers a new plugin](https://github.com/WordPress/block-development-examples/blob/125ca3add64768323c738e477246dbc8f2e202f4/plugins/post-meta-modal-2502fb/src/index.js#L141) for the Post Editor. This plugin allows users to open a modal and set the custom fields for each post. The modal can be opened using the Options panel or the Command Palette (`cmd + k`) as seen in the gif above.
-
-The plugin utilizes the [`PluginMoreMenuItem`](https://developer.wordpress.org/block-editor/reference-guides/slotfills/plugin-more-menu-item/) slot and multiple [WordPress components](https://developer.wordpress.org/block-editor/reference-guides/components/) (`Modal`, `RadioControl`, `SelectControl`, `TextControl` ). The custom command for the Command Palette is added using [`useCommand`](https://developer.wordpress.org/block-editor/reference-guides/packages/packages-commands/#usecommand).
 
 ## Related resources
 
-- [SlotFills Reference](https://developer.wordpress.org/block-editor/reference-guides/slotfills/)
-- [Component Reference](https://developer.wordpress.org/block-editor/reference-guides/components/)
-- [@wordpress/commands](https://developer.wordpress.org/block-editor/reference-guides/packages/packages-commands/#usecommand) package reference
+- This plugin is built using code from this [Starter Repo](https://github.com/WordPress/block-development-examples/tree/trunk/plugins/post-meta-modal-2502fb)
+
+- [SlotFills Reference](https://developer.wordpress.org/block-editor/reference-guides/slotfills/) ([`PluginMoreMenuItem`](https://developer.wordpress.org/block-editor/reference-guides/slotfills/plugin-more-menu-item/))
+- [Component Reference](https://developer.wordpress.org/block-editor/reference-guides/components/) (`Modal`, `RadioControl`, `SelectControl`, `TextControl` ) 
+- [@wordpress/commands](https://developer.wordpress.org/block-editor/reference-guides/packages/packages-commands/#usecommand) package reference ([`useCommand`](https://developer.wordpress.org/block-editor/reference-guides/packages/packages-commands/#usecommand))
 - [`register_post_meta`](https://developer.wordpress.org/reference/functions/register_post_meta/) documentation
 
-----
 
-> **Note**
-> Check the [Start Guide for local development with the examples](https://github.com/WordPress/block-development-examples/wiki/02-Examples#start-guide-for-local-development-with-the-examples)

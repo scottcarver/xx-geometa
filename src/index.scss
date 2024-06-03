@@ -85,6 +85,7 @@
 	// Modal
 	.modal{
 		display:flex;
+		flex-direction: row-reverse;
 		height: 100%;
 	}
 	.modal__ratio{
@@ -94,15 +95,18 @@
 		width:250px;
 		// padding-right:30px;
 		padding:20px;
-		background: #eee;
-    	border-radius: 10px 0 0 10px;
+		// background: #eee;
+		border:1px solid #ddd;
+    	border-radius: 0 10px 10px 0;
 		display: flex;
 		flex-direction: column;
+		overflow:auto;
 	}
 	.modal__map{
 		position: relative;
 		width:calc(100% - 250px);
-		border-radius: 0 10px 10px 0;
+		border-radius: 10px 0 0 10px;
+		
 		overflow:hidden;
 	}
 
@@ -132,17 +136,13 @@
 //   position: absolute;
 
 	margin-top:auto;
-
+	padding-top:20px;
 
   button{
-	width:100%;
-	padding: 10px 20px;
-    font-size: initial;
-	background-color: #fff;
-	border:solid 1px #ccc;
-	border-radius: 2px;
-	// min-width:200px;
+	width: 100%;
+    justify-content: center;
   }
+
 }
 
 .pac-container{
