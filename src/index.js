@@ -7,16 +7,15 @@ import {
 	Modal,
 	TextControl,
 	Button,
-	ButtonGroup,
 	ToggleControl,
 	BaseControl,
-	Tooltip,
 	__experimentalNumberControl as NumberControl
 } from '@wordpress/components';
 import { useState, useEffect, useRef } from '@wordpress/element';
 import { PluginSidebarMoreMenuItem, PluginMoreMenuItem, PluginSidebar, PluginDocumentSettingPanel} from '@wordpress/edit-post';
-// import SECRET_KEY from './secrets.js';
 
+
+// import ClipboardComponent from "./CopyPaster.js";
 
 /* Tutorial here https://developers.google.com/maps/documentation/javascript/examples/rgm-autocomplete & here
 https://developers.google.com/maps/documentation/javascript/examples/rgm-autocomplete#maps_rgm_autocomplete-javascript */
@@ -75,7 +74,7 @@ const SetCenterButton = (props) => {
 	// const [ meta, setMeta ] = useEntityProp( 'postType', 'post', 'meta' );
 	const postType = select('core/editor').getCurrentPostType();
 	const [meta, setMeta] = useEntityProp('postType', postType, 'meta');
-	console.log("POSTTYPE! " + postType);
+	// console.log("POSTTYPE! " + postType);
 
 	const [ isStreetView, setisStreetView ] = useState(false);
 	// const streetView = useMapsLibrary("streetView");
@@ -92,8 +91,8 @@ const SetCenterButton = (props) => {
 
 		setisStreetView(map.streetView.visible ? true : false);
 
-		console.log("map was", map);
-		console.log("center was", activeCenter);
+		// console.log("map was", map);
+		// console.log("center was", activeCenter);
 
 		// Set Meta
 		setMeta( {
@@ -142,14 +141,14 @@ const PlaceAutocomplete = ({ onPlaceSelect }) => {
 	// const [ meta, setMeta ] = useEntityProp( 'postType', 'post', 'meta' )
 	const postType = select('core/editor').getCurrentPostType();
 	const [meta, setMeta] = useEntityProp('postType', postType, 'meta');
-	console.log("POSTTYPE! " + postType);
+	// console.log("POSTTYPE! " + postType);
 	
 	const map = useMap();
 
 	// Change
 	useEffect(() => {
 
-		console.log("places changed");
+		// console.log("places changed");
 		if (!places || !inputRef.current) return;
 	
 		const options = {
@@ -157,7 +156,6 @@ const PlaceAutocomplete = ({ onPlaceSelect }) => {
 		};
 		// const results = new places.Autocomplete(inputRef.current, options);
 		// const results = new google.maps.places.PlaceAutocompleteElement();
-		
 		// console.log("results ", results);
 
 	  	setPlaceAutocomplete(new places.Autocomplete(inputRef.current, options));
@@ -166,13 +164,13 @@ const PlaceAutocomplete = ({ onPlaceSelect }) => {
 
 	// Change
 	useEffect(() => {
-		console.log("onPlaceSelect, placeAutocomplete changed");
+		// console.log("onPlaceSelect, placeAutocomplete changed");
 
 		if (!placeAutocomplete) return;
 	
 		placeAutocomplete.addListener("place_changed", () => {
 
-			console.log("also, 	placeAutocomplete.getPlace() occurred", placeAutocomplete.getPlace());
+			// console.log("also, 	placeAutocomplete.getPlace() occurred", placeAutocomplete.getPlace());
 			onPlaceSelect(placeAutocomplete.getPlace());
 
 			const place = placeAutocomplete.getPlace();
@@ -198,6 +196,8 @@ const PlaceAutocomplete = ({ onPlaceSelect }) => {
 	);
   };
 
+
+
 function MetaModalManager() {
 
 	const postType = select('core/editor').getCurrentPostType();
@@ -214,14 +214,14 @@ function MetaModalManager() {
 		return false; 
 	}
 
-	// Destructured from Page
 	const { apiKey, supportedPostTypes, interfacePlacement, interfaceMaps } = GeometaPluginSettings;
 	const showMap = (apiKey !== undefined) && (apiKey !== "") && (interfaceMaps === "map_selector");
-	const [ isModalOpen, setModalOpen ] = useState( false );
-	const [ isEditing, setIsEditing] = useState(false);
 	const [meta, setMeta] = useEntityProp('postType', postType, 'meta');
 	const [ selectedPlace, setSelectedPlace] = useState(null);
+	const [ isModalOpen, setModalOpen ] = useState( false );
 	const [ markerRef, marker] = useAdvancedMarkerRef();
+	const alaska = {lat: 61.2176, lng: -149.8997};
+	const position = {lat: meta?.geo_latitude || alaska.lat, lng: meta?.geo_longitude || alaska.lng};
 
 	// Register 'Edit Geolocation' Command
 	useCommand( {
@@ -232,8 +232,7 @@ function MetaModalManager() {
 		context: 'block-editor',
 	} );
 
-	// Register 'Toggle Geolocation' Command
-		{/* Sidebar */}
+	// Register 'Toggle Geolocation' Command (only with 'sidebar' placement)
 	{interfacePlacement === "sidebar" && 
 		useCommand( {
 			name: 'view-post-geolocation',
@@ -244,13 +243,29 @@ function MetaModalManager() {
 		} );
 	}
 
-	const alaska = {lat: 61.2176, lng: -149.8997};
-	const position = {lat: meta?.geo_latitude || alaska.lat, lng: meta?.geo_longitude || alaska.lng};
-
+	/**
+	 * Preview Geometa
+	 * Compontentized markup which previews the current data. This is broken apart because it is used in two places (the sidebar and publish panel), depending on which user setting was selected.
+	 */
+	const PreviewGeometa = function(props){
+		const postType = select('core/editor').getCurrentPostType();
+		const [meta, setMeta] = useEntityProp('postType', postType, 'meta');
+		// console.log('props', props);
+		return(
+			<div className={`geo-mega ${(props.variant === 'padded') ? 'geo-mega--padded' : ''}`}>
+				<ul>
+					<li className={`${meta?.geo_public ? 'green' : 'red'}`}><strong>Public:</strong> <span>{meta?.geo_public == 1 ? "Yes" : "No"}</span></li>
+					<li><strong>Address:</strong> {meta?.geo_address}</li>
+					<li><strong>Latitude:</strong> {meta?.geo_latitude}</li>
+					<li><strong>Longitude:</strong> {meta?.geo_longitude}</li>
+				</ul>
+				<Button onClick={ () => setModalOpen( true ) } variant="secondary" icon="admin-site-alt3">Edit Geodata</Button>
+			</div>
+		);
+	}
 
 	// Handle Drag Change
 	const handleDragChange = (ev) => {
-
 		// console.log('camera changed: ', ev);
 
 		const lat = ev.latLng.lat();
@@ -265,7 +280,6 @@ function MetaModalManager() {
 
 	// Handle Right Click
 	const handleRightClick = (ev) => {
-
 		// console.log('right click!', ev);
 
 		const lat = ev.detail.latLng.lat;
@@ -281,10 +295,9 @@ function MetaModalManager() {
 
 	return (
 		<>
-
 			{/* Quick Link */}
 			{interfacePlacement === "quicklink" && 
-				<PluginMoreMenuItem icon="admin-site-alt" onClick={() => {setModalOpen(true)} }>
+				<PluginMoreMenuItem icon="admin-site-alt3" onClick={() => {setModalOpen(true)} }>
 					Edit Geolocation Data
 				</PluginMoreMenuItem>
 			}
@@ -293,7 +306,7 @@ function MetaModalManager() {
 			{interfacePlacement === "sidebar" && 
 				<PluginSidebarMoreMenuItem 
 					target="geolocation-sidebar-plugin" 
-					icon="admin-site-alt">
+					icon="admin-site-alt3">
 					Geolocation Sidebar
 				</PluginSidebarMoreMenuItem>
 			}
@@ -304,58 +317,26 @@ function MetaModalManager() {
 				name="custom-panel"
 				title="Geolocation Data"
 				className="custom-panel"
-				// icon="admin-site-alt"
 				isPluginSidebarOpened={false}
 			>
-				<p>{ __('This is my custom panel content.', 'text-domain') }</p>
+				{/* Preview Data */}
+				<PreviewGeometa />
 			</PluginDocumentSettingPanel>
 			}
 		
 			{/* Sidebar Content */}
 			{interfacePlacement === "sidebar" && 
-			<PluginSidebar name="geolocation-sidebar-plugin" icon="admin-site-alt" title="Geolocation">
-				<div className="geo-mega">
-					{/* <h3>Current Data:</h3>					 */}
-					<ul>
-						<li className={`${meta?.geo_public ? 'green' : 'red'}`}><strong>Public:</strong> <span>{meta?.geo_public == 1 ? "Yes" : "No"}</span></li>
-						{!isEditing &&
-							<li><strong>Address:</strong> {meta?.geo_address}</li>
-						} 
-						{isEditing &&
-							<li>
-								<TextControl
-									label={ __(
-										'Address',
-										'block-development-examples'
-									) }
-									value={ meta?.geo_address || '' }
-									onChange={ ( newValue ) =>
-										setMeta({ ...meta, geo_address: newValue, })
-									}
-									help="Freeform textual description of coordinates."
-								/>
-							</li>
-						}
-						<li><strong>Latitude:</strong> {meta?.geo_latitude}</li>
-						<li><strong>Longitude:</strong> {meta?.geo_longitude}</li>
-					</ul>
-					{/* <ButtonGroup> */}
-					<Button onClick={ () => setModalOpen( true ) } variant="secondary" icon="admin-site-alt">Edit Data</Button>
-				
-					{/* </ButtonGroup> */}
-				</div>
+			<PluginSidebar name="geolocation-sidebar-plugin" icon="admin-site-alt3" title="Geolocation">
+				{/* Preview Data */}
+				<PreviewGeometa variant="padded" />
 			</PluginSidebar>
 			}
 			
 			{/* Expanded Overlay View */}
 			{isModalOpen && (
 				<Modal
-					className="post_meta_modal_2502fb_container"
-			
-					title={ __(
-						'Edit Geolocation Data',
-						'block-development-examples'
-					) }
+					className="xx_geometa_modal"
+					title={ __( 'Edit Geolocation Data', 'block-development-examples')}
 					onRequestClose={ () => setModalOpen( false ) }
 					size={showMap ? 'fill' : 'small'}
 				>
@@ -365,6 +346,10 @@ function MetaModalManager() {
 						{/* Controls  */}
 						<div className="modal__controls">
 							
+							{/* Experimental, bring this later */}
+							{/* <ClipboardComponent /> */}
+							
+							{/* Public */}
 							<BaseControl label="Public:">
 								<br />
 
@@ -377,6 +362,7 @@ function MetaModalManager() {
 
 							</BaseControl>
 
+							{/* Text Control */}
 							<TextControl
 								label={ __('Address','block-development-examples') }
 								value={ meta?.geo_address || '' }
@@ -384,6 +370,7 @@ function MetaModalManager() {
 								help="Freeform textual description of coordinates."
 							/>
 
+							{/* Latitude */}
 							<NumberControl
 								label={ __('Latitude','block-development-examples') }
 								step=".0001"
@@ -394,8 +381,10 @@ function MetaModalManager() {
 								max="90"
 								value={ meta?.geo_latitude || '' }
 								help="Decimal degrees -90 to 90 (negative values are in the southern hemisphere)."
+								spinControls="none"
 							/>
 
+							{/* Longitude */}
 							<NumberControl
 								label={ __('Longitude', 'block-development-examples') }
 								step=".0001"
@@ -409,22 +398,15 @@ function MetaModalManager() {
 							/>
 
 							{/* Set Center */}
-							{showMap &&
-							
-								<SetCenterButton />
-							}
+							{showMap && <SetCenterButton /> }
 							
 						</div>
+
 						{/* Map */}
 						{showMap &&
-						
 							<div className="modal__map">
 
-								{/* <div style={{position:"relative"}} className='modal__ratio'> */}
-								{/* Google API Boundary */}
-
-								{/* Map with Advanced Marker */}
-								{/*  disableDefaultUI={true} */}
+								{/* Map */}
 								<Map 
 									mapId="geocoder_tool" 
 									defaultCenter={position} 
@@ -434,29 +416,23 @@ function MetaModalManager() {
 									fullscreenControl={false}
 									streetViewControlOptions={{position: ControlPosition.TOP_RIGHT}}
 								>
-
-									What is {JSON.stringify(position)}
-									{position &&
-										<AdvancedMarker position={position} draggable onDragEnd={handleDragChange}  />
-									}
+									{position && <AdvancedMarker position={position} draggable onDragEnd={handleDragChange}  /> }
 								</Map>
 
-								{/* AutoSelect Tool */}
+								{/* Search Feature */}
 								<MapControl position={ControlPosition.TOP_CENTER}>
 									<div className="autocomplete-control">
 										<PlaceAutocomplete onPlaceSelect={setSelectedPlace} />
 									</div>
 								</MapControl>
 
-					
-
+								{/* Set Map Center */}
 								<SetCenterButton />
 								
+								{/* Dynamic Map Handler */}
 								<MapHandler place={selectedPlace} marker={marker} />
-								
 							
-							{/* </div> */}
-						</div>
+							</div>
 						}
 					</div>
 			

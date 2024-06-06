@@ -1,7 +1,7 @@
 /**
  * Editor-specific styles.
  */
-.post_meta_modal_2502fb_container {
+.xx_geometa_modal {
 
 	// Outline the first div (because React)
 	.components-modal__header + div{
@@ -87,15 +87,27 @@
 		display:flex;
 		flex-direction: row-reverse;
 		height: 100%;
+		flex-wrap: wrap;
 
 		// Modifier: --fullscreen
 		&.modal--fullscreen{
 			.modal__controls{ 
-				width:250px; 		
+				width:100%; 		
 				border:1px solid #ddd;
-				border-radius: 0 10px 10px 0;
+			
+
+				@media(min-width:600px){
+					border-radius: 0 10px 10px 0;
+					width:250px; 	
+				}
 			}
-			.modal__map{ width:calc(100% - 250px); }
+			.modal__map{ 
+				width:100%;
+				min-height: 400px;
+				@media(min-width:600px){
+					width:calc(100% - 250px); 	
+				}
+			}
 		}
 
 	}
@@ -124,6 +136,25 @@
 		display:none;
 	}
 
+	.center-control{
+	//   outline:solid 10px red;
+	// top: 10px;
+	// right: 10px;
+		// position: absolute;
+		// top: 10px;
+		// right: 10px;
+	//   padding-bottom:20px;
+	//   position: absolute;
+	
+		margin-top:auto;
+		padding-top:20px;
+	
+		button{
+		width: 100%;
+		justify-content: center;
+		}
+	
+	}
 
 }
 /*
@@ -133,25 +164,7 @@
 	display:none;
 }
 */
-.center-control{
-//   outline:solid 10px red;
-// top: 10px;
-// right: 10px;
-	// position: absolute;
-	// top: 10px;
-	// right: 10px;
-//   padding-bottom:20px;
-//   position: absolute;
 
-	margin-top:auto;
-	padding-top:20px;
-
-  button{
-	width: 100%;
-    justify-content: center;
-  }
-
-}
 
 .pac-container{
 	background-color: #fff;
@@ -189,8 +202,12 @@
 // Geo Mega
 .geo-mega{
 	// background:pink;
-	padding:20px;
 
+	// Modifier: Padded
+	&.geo-mega--padded{
+		padding:20px;
+	}
+	
 	h3{
 		padding:0;
 		font-weight: 600;
