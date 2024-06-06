@@ -13,10 +13,10 @@ function xx_geometa_enqueueassets() {
 
 
 	// Check if we are on the Post Editor and the post type is "post".
-	if (
-		'post.php' === $pagenow && $isAllowedType && file_exists( $xx_geometa_script_assets )
-	) {
+	if ('post.php' === $pagenow && $isAllowedType && file_exists( $xx_geometa_script_assets )) {
+
 		$assets = include $xx_geometa_script_assets;
+
 		wp_enqueue_script(
 			'xx_geometa_scripts',
 			plugin_dir_url( __FILE__ ) . 'build/index.js',
@@ -31,6 +31,14 @@ function xx_geometa_enqueueassets() {
 			array(),
 			$assets['version']
 		);
+
+        wp_localize_script('xx_geometa_scripts', 'GeometaPluginSettings', array(
+            'apiKey' => get_option('opt_geoapikey'),
+            'supportedPostTypes' => get_option('opt_geoallowedtypes', array()),
+            'interfacePlacement' => get_option('opt_geoplacement'),
+            'interfaceMaps' => get_option('opt_geointerface')
+        ));
+    
 	}
 }
 add_action( 'enqueue_block_editor_assets', 'xx_geometa_enqueueassets' );

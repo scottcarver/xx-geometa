@@ -4,7 +4,6 @@
  */
 function xx_geometa_registerfields() {
 
-
 	// This should only be for a custom plucked list
 	$post_types = get_post_types( array('public' => true) );
 	// error_log("boop!");
@@ -13,6 +12,18 @@ function xx_geometa_registerfields() {
 
 	// Iterate over available post_types, registering a metafield for each
     foreach( $post_types as $post_type ){
+
+        // Public
+		register_post_meta(
+			$post_type,
+			'geo_public',
+			array(
+				'show_in_rest' => true,
+				'single'       => true,
+				'type'         => 'integer',
+			)
+		);
+
 		// Latitude
 		register_post_meta(
 			$post_type,
@@ -23,6 +34,7 @@ function xx_geometa_registerfields() {
 				'type'         => 'number',
 			)
 		);
+
 		// Longitudee
 		register_post_meta(
 			$post_type,
@@ -33,16 +45,9 @@ function xx_geometa_registerfields() {
 				'type'         => 'number',
 			)
 		);
-		// Public
-		register_post_meta(
-			$post_type,
-			'geo_public',
-			array(
-				'show_in_rest' => true,
-				'single'       => true,
-				'type'         => 'integer',
-			)
-		);
+
+	
+
 		// Address
 		register_post_meta(
 			$post_type,

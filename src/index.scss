@@ -87,24 +87,32 @@
 		display:flex;
 		flex-direction: row-reverse;
 		height: 100%;
+
+		// Modifier: --fullscreen
+		&.modal--fullscreen{
+			.modal__controls{ 
+				width:250px; 		
+				border:1px solid #ddd;
+				border-radius: 0 10px 10px 0;
+			}
+			.modal__map{ width:calc(100% - 250px); }
+		}
+
 	}
 	.modal__ratio{
 		aspect-ratio: 2/1;
 	}
 	.modal__controls{
-		width:250px;
 		// padding-right:30px;
 		padding:20px;
 		// background: #eee;
-		border:1px solid #ddd;
-    	border-radius: 0 10px 10px 0;
+
 		display: flex;
 		flex-direction: column;
 		overflow:auto;
 	}
 	.modal__map{
 		position: relative;
-		width:calc(100% - 250px);
 		border-radius: 10px 0 0 10px;
 		
 		overflow:hidden;
@@ -175,4 +183,37 @@
 		position:absolute;
 
 	}
+}
+
+
+// Geo Mega
+.geo-mega{
+	// background:pink;
+	padding:20px;
+
+	h3{
+		padding:0;
+		font-weight: 600;
+		text-transform:none;
+		font-size: inherit;
+	}
+
+	ul{
+		margin-bottom:20px;
+		margin-top:0;
+	}
+
+	li{
+		display: flex;
+	    justify-content: space-between;
+		padding:5px 0 5px;
+		border-bottom:1px solid #ddd;
+		text-align:right;
+		&:last-of-type{border-color:transparent;}
+		strong{
+			margin-right: 5px;
+		}
+	}
+	// .red span{color:red;}
+	// .green span{color:green;}
 }

@@ -14,7 +14,7 @@
 
 // Register Fields
 require_once('xx-geometa_registerfields.php');
-// Enqueue Assets
-require_once('xx-geometa_enqueueassets.php');
 // Settings Page
 require_once('xx-geometa_settings.php');
+// Enqueue Block Assets
+require_once('xx-geometa_enqueueassets.php');
