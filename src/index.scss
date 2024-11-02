@@ -99,6 +99,7 @@
 				@media(min-width:600px){
 					border-radius: 0 10px 10px 0;
 					width:250px; 	
+					height: 100%;
 				}
 			}
 			.modal__map{ 
@@ -223,13 +224,19 @@
 	li{
 		display: flex;
 	    justify-content: space-between;
-		padding:5px 0 5px;
-		border-bottom:1px solid #ddd;
+		padding:5px 0 5px 0;
+		margin:0;
+		// border-bottom:1px solid #ddd;
 		text-align:right;
 		&:last-of-type{border-color:transparent;}
 		strong{
 			margin-right: 5px;
 		}
+	}
+	
+	.components-button.has-icon.has-text{
+		width:100%;
+		justify-content: center;
 	}
 	// .red span{color:red;}
 	// .green span{color:green;}

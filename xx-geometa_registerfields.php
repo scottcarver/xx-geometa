@@ -11,6 +11,7 @@ function xx_geometa_registerfields() {
 	// $post_types = array ( 'post', 'page', 'styled', 'wp_block');
 
 	// Iterate over available post_types, registering a metafield for each
+	// S.C. Note that alterntatively one can use register_meta for ALL TYPES
     foreach( $post_types as $post_type ){
 
         // Public
@@ -47,7 +48,6 @@ function xx_geometa_registerfields() {
 		);
 
 	
-
 		// Address
 		register_post_meta(
 			$post_type,
@@ -58,6 +58,31 @@ function xx_geometa_registerfields() {
 				'type'         => 'string',
 			)
 		);
+
+		// Heading (attachments only)
+		if($post_type === 'attachment'){
+			register_post_meta(
+				$post_type,
+				'geo_heading',
+				array(
+					'show_in_rest' => true,
+					'single'       => true,
+					'type'         => 'number',
+				)
+			);
+		}
+		// Map (not for attachments though)
+		if($post_type !== 'attachment'){
+			register_post_meta(
+				$post_type,
+				'geo_map',
+				array(
+					'show_in_rest' => true,
+					'single'       => true,
+					'type'         => 'string',
+				)
+			);
+		}
     }
 }
 

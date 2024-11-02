@@ -4,6 +4,7 @@
 import { __ } from '@wordpress/i18n';
 import { registerPlugin } from '@wordpress/plugins';
 import {
+	AnglePickerControl,
 	Modal,
 	TextControl,
 	Button,
@@ -12,7 +13,7 @@ import {
 	__experimentalNumberControl as NumberControl
 } from '@wordpress/components';
 import { useState, useEffect, useRef } from '@wordpress/element';
-import { PluginSidebarMoreMenuItem, PluginMoreMenuItem, PluginSidebar, PluginDocumentSettingPanel} from '@wordpress/edit-post';
+import { PluginSidebarMoreMenuItem, PluginMoreMenuItem, PluginSidebar, PluginDocumentSettingPanel, PluginPrePublishPanel} from '@wordpress/edit-post';
 
 
 // import ClipboardComponent from "./CopyPaster.js";
@@ -41,6 +42,32 @@ import { blockMeta, stack, plusCircle, aspectRatio, globe } from '@wordpress/ico
  */
 import './index.scss';
 
+
+/** 
+ * Get Compass Direction
+ * 
+ * Accepts an angle 0-360 and returns a stylized value
+ */
+function getCompassDirection(angle) {
+    // Normalize the angle to 0-360 degrees
+    let normalizedAngle = angle % 360;
+
+    // Compass directions in 22.5° increments (N, NNE, NE, etc.)
+    const directions = [
+        "N", "NNE", "NE", "ENE", "E", "ESE", "SE", "SSE", "S", 
+        "SSW", "SW", "WSW", "W", "WNW", "NW", "NNW", "N"
+    ];
+
+    // Calculate the corresponding direction index (16 cardinal directions)
+    let directionIndex = Math.round(normalizedAngle / 22.5);
+
+    // Retrieve the correct direction from the array
+    let direction = directions[directionIndex];
+
+    // Return the angle and direction in the desired format
+    // return `${normalizedAngle}° ${direction}`;
+	return `${direction}`;
+}
 
 
 
@@ -86,7 +113,10 @@ const SetCenterButton = (props) => {
 
 		// Use the Streetview location when Streetview is visible
 		if(map.streetView.visible){
-			activeCenter = { lat: map.streetView.position.lat(), lng: map.streetView.position.lng()};
+			activeCenter = { 
+				lat: map.streetView.position.lat(), 
+				lng: map.streetView.position.lng()
+			};
 		}
 
 		setisStreetView(map.streetView.visible ? true : false);
@@ -214,7 +244,7 @@ function MetaModalManager() {
 		return false; 
 	}
 
-	const { apiKey, supportedPostTypes, interfacePlacement, interfaceMaps } = GeometaPluginSettings;
+	const { apiKey, supportedPostTypes, interfacePlacement, interfaceMaps, proprietryData, starterMap } = GeometaPluginSettings;
 	const showMap = (apiKey !== undefined) && (apiKey !== "") && (interfaceMaps === "map_selector");
 	const [meta, setMeta] = useEntityProp('postType', postType, 'meta');
 	const [ selectedPlace, setSelectedPlace] = useState(null);
@@ -229,6 +259,14 @@ function MetaModalManager() {
 		label: __( 'Edit Geolocation data', 'block-development-examples' ),
 		icon: globe,
 		callback: () => setModalOpen( true ),
+		context: 'block-editor',
+	} );
+
+	useCommand( {
+		name: 'manage-settings-geolocation',
+		label: __( 'Edit Geolocation Settings', 'block-development-examples' ),
+		icon: globe,
+		callback: () => window.location = 'http://localhost/gutenberg-test/wp-admin/options-general.php?page=geo-sidebar-settings',
 		context: 'block-editor',
 	} );
 
@@ -254,10 +292,27 @@ function MetaModalManager() {
 		return(
 			<div className={`geo-mega ${(props.variant === 'padded') ? 'geo-mega--padded' : ''}`}>
 				<ul>
-					<li className={`${meta?.geo_public ? 'green' : 'red'}`}><strong>Public:</strong> <span>{meta?.geo_public == 1 ? "Yes" : "No"}</span></li>
-					<li><strong>Address:</strong> {meta?.geo_address}</li>
-					<li><strong>Latitude:</strong> {meta?.geo_latitude}</li>
-					<li><strong>Longitude:</strong> {meta?.geo_longitude}</li>
+					<li className={`${meta?.geo_public ? 'green' : 'red'}`}><strong>Public:</strong> <span style={ meta?.geo_public ? { color: 'green'} : {color: 'red'}}
+					>{meta?.geo_public == 1 ? "Yes" : "No"}</span></li>
+					<li><strong>Address:</strong> {meta?.geo_address ? meta?.geo_address : '--'}</li>
+					<li><strong>Latitude:</strong> {meta?.geo_latitude ? meta?.geo_latitude : '--'}</li>
+					<li><strong>Longitude:</strong> {meta?.geo_longitude ? meta?.geo_longitude : '--'}</li>
+					{/* <li><strong>Heading:</strong> {meta?.geo_heading + " degrees, (" + getCompassDirection(meta?.geo_heading) +")"}</li> */}
+					{proprietryData &&
+					<li><strong>Map URL:</strong> 
+						{meta.geo_map &&
+							<a href={meta?.geo_map} target="_blank" style={{width:'130px', whiteSpace:'nowrap', overflow:'hidden', textOverflow:'ellipsis'}}>{meta?.geo_map}</a>
+						}
+
+
+						{!meta.geo_map &&
+							// <a href="http://localhost/pointoforegon.com/nwmaps/oregon/" target="_blank">🆕 Create New</a>
+							<>--</>
+						}
+						
+						
+					</li>
+					}
 				</ul>
 				<Button onClick={ () => setModalOpen( true ) } variant="secondary" icon="admin-site-alt3">Edit Geodata</Button>
 			</div>
@@ -295,10 +350,15 @@ function MetaModalManager() {
 
 	return (
 		<>
+
+			{/* <PluginPrePublishPanel>
+				PREPUB!
+			</PluginPrePublishPanel> */}
+
 			{/* Quick Link */}
 			{interfacePlacement === "quicklink" && 
 				<PluginMoreMenuItem icon="admin-site-alt3" onClick={() => {setModalOpen(true)} }>
-					Edit Geolocation Data
+					Edit Geodata
 				</PluginMoreMenuItem>
 			}
 			
@@ -307,7 +367,7 @@ function MetaModalManager() {
 				<PluginSidebarMoreMenuItem 
 					target="geolocation-sidebar-plugin" 
 					icon="admin-site-alt3">
-					Geolocation Sidebar
+					Geodata Sidebar
 				</PluginSidebarMoreMenuItem>
 			}
 
@@ -315,7 +375,7 @@ function MetaModalManager() {
 			{interfacePlacement === "publish" && 
 			<PluginDocumentSettingPanel  
 				name="custom-panel"
-				title="Geolocation Data"
+				title="Geodata"
 				className="custom-panel"
 				isPluginSidebarOpened={false}
 			>
@@ -326,7 +386,7 @@ function MetaModalManager() {
 		
 			{/* Sidebar Content */}
 			{interfacePlacement === "sidebar" && 
-			<PluginSidebar name="geolocation-sidebar-plugin" icon="admin-site-alt3" title="Geolocation">
+			<PluginSidebar name="geolocation-sidebar-plugin" icon="admin-site-alt3" title="Geodata">
 				{/* Preview Data */}
 				<PreviewGeometa variant="padded" />
 			</PluginSidebar>
@@ -336,7 +396,7 @@ function MetaModalManager() {
 			{isModalOpen && (
 				<Modal
 					className="xx_geometa_modal"
-					title={ __( 'Edit Geolocation Data', 'block-development-examples')}
+					title={ __( 'Edit Geodata', 'block-development-examples')}
 					onRequestClose={ () => setModalOpen( false ) }
 					size={showMap ? 'fill' : 'small'}
 				>
@@ -362,7 +422,9 @@ function MetaModalManager() {
 
 							</BaseControl>
 
-							{/* Text Control */}
+							<br />
+
+							{/* Address Control */}
 							<TextControl
 								label={ __('Address','block-development-examples') }
 								value={ meta?.geo_address || '' }
@@ -370,6 +432,7 @@ function MetaModalManager() {
 								help="Freeform textual description of coordinates."
 							/>
 
+							<br />
 							{/* Latitude */}
 							<NumberControl
 								label={ __('Latitude','block-development-examples') }
@@ -384,6 +447,8 @@ function MetaModalManager() {
 								spinControls="none"
 							/>
 
+							<br />
+
 							{/* Longitude */}
 							<NumberControl
 								label={ __('Longitude', 'block-development-examples') }
@@ -396,6 +461,56 @@ function MetaModalManager() {
 								value={ meta?.geo_longitude || '' }
 								help="Decimal degrees -180 to 180 (negative values are in the western hemisphere)."
 							/>
+
+						
+							{/* 
+							<BaseControl
+								id="angle-picker-control"
+								// label="Label text"
+								help={"A value between 0 and 360 representing direction."}
+								//  + getCompassDirection(meta?.geo_heading) + ")"
+							>
+								<AnglePickerControl
+									id="angle-picker-control"
+									label={ __("Heading",'block-development-examples') }
+									onChange={ ( newValue ) => setMeta({ ...meta, geo_heading: newValue, })}
+									value={ meta?.geo_heading || '' }
+										
+								/>
+							</BaseControl>
+							*/}
+
+							{/* Map Control */}
+							{proprietryData &&
+								<>
+									<br />
+
+									<TextControl
+										label={ __('Map URL','block-development-examples') }
+										value={ meta?.geo_map || '' }
+										onChange={ ( newValue ) => setMeta({ ...meta, geo_map: newValue, })}
+										// help="The URL of a page displaying a Map for this location"
+										help={
+											<>
+												A URL which contains a map.{' '}
+												{ meta?.geo_map &&
+													<a href={ meta?.geo_map} target="_blank" rel="noopener noreferrer">
+														View Current
+													</a>
+												}
+												{' '}
+												
+												{starterMap &&
+													<a href={starterMap} target="_blank" rel="noopener noreferrer">
+														Defaults
+													</a>
+												}
+											</>
+										}
+									/>
+								</>
+							}
+
 
 							{/* Set Center */}
 							{showMap && <SetCenterButton /> }

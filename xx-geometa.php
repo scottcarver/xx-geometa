@@ -1,9 +1,9 @@
 <?php
 /**
  * Plugin Name:       Geodata Sidebar
- * Requires at least: 6.3
- * Requires PHP:      7.0
- * Version:           1.0.0
+ * Plugin URI:      https://github.com/scottcarver/xx-geometa
+ * Description:       A sidebar plugin used for managing geographic metadata within a post/page or attachment.
+ * Version:           1.0.1
  * Author:            Scott Carver
  */
 
@@ -13,3 +13,7 @@ require_once('xx-geometa_registerfields.php');
 require_once('xx-geometa_settings.php');
 // Enqueue Block Assets
 require_once('xx-geometa_enqueueassets.php');
+// Attachment UI
+require_once('xx-geometa_attachmentsidebar.php');
+// Image GPS Extraction
+require_once('xx-geometa_imageupload.php');

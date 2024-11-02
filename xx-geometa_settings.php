@@ -8,6 +8,8 @@ function register_geo_sidebar_settings() {
     register_setting('geo_sidebar_settings', 'opt_geoapikey');
     register_setting('geo_sidebar_settings', 'opt_geoplacement');
     register_setting('geo_sidebar_settings', 'opt_geointerface');
+    register_setting('geo_sidebar_settings', 'opt_geoproprietary');
+    
 }
 
 // Sanitize the input to ensure it's an array
@@ -73,6 +75,23 @@ function geo_sidebar_interface_callback() {
     }
     echo '</select>';
 }
+
+function geo_sidebar_proprietary_callback() {
+    $placement = get_option('opt_geoproprietary', 'publish panel');
+    $options = array(
+        'yes' => 'Yes',
+        'no' => 'No',
+    );
+  
+    echo('<p style="max-width:70ch;">This displays a custom field saved as "geo_map" - The default map can be set as a PHP constant "GEOMETA_SETTINGS_DEFAULTMAP", which is recommended to be a starter URL.</p><br />');
+    echo '<select name="opt_geoproprietary">';
+    foreach ($options as $value => $label) {
+        $selected = ($placement === $value) ? 'selected' : '';
+        echo '<option value="' . esc_attr($value) . '" ' . $selected . '>' . esc_html($label) . '</option>';
+    }
+    echo '</select>';
+}
+
 
 
 // Render the settings page
@@ -180,7 +199,8 @@ function geo_sidebar_settings_init() {
         'geo_sidebar_settings_section' // Section
     );
     
-     // Field: Map Features
+
+    // Field: Map Features
     add_settings_field(
         'opt_geoapikey',               // ID
         'Google API Key',              // Title
@@ -188,6 +208,17 @@ function geo_sidebar_settings_init() {
         'geo-sidebar-settings',        // Page
         'geo_sidebar_settings_section' // Section
     );
+
+    // Field: Proprietary Features
+    add_settings_field(
+        'opt_geoproprietary',            // ID
+        'Proprietary Features?',                   // Title
+        'geo_sidebar_proprietary_callback', // Callback
+        'geo-sidebar-settings',        // Page
+        'geo_sidebar_settings_section' // Section
+    );
+    
+
 }
 
 add_action('admin_menu', function() {
