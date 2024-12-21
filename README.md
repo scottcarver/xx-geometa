@@ -1,66 +1,56 @@
-### Geodata Manager
+# Geodata Sidebar
 
-## Overview
-This plugin registers custom fields related to managing geographic data in WordPress. 
+This plugin registers custom fields and creates custom interface elements related to managing geographic data in WordPress. By registering the standard values defined in the [WP Geodata documentation](https://codex.wordpress.org/Geodata) the feature set is very specific and limited.
 
-<img src="https://github.com/WordPress/block-development-examples/blob/trunk/plugins/post-meta-modal-2502fb/_assets/post-meta-modal.gif"/>
-
+### Editing Interface
 <img src="_assets/edit-geodata-small.gif"/>
 
-<img src="https://github.com/WordPress/block-development-examples/blob/trunk/plugins/post-meta-modal-2502fb/_assets/post-meta-modal.gif"/>
-
+### Attachment Interface
+<img src="_assets/attachment-meta-sidebar.jpg"/>
 
 ### Metadata Values
 
-This table shows a breakdown of the values that the plugin stores.
+This table shows a breakdown of the metadata values that the plugin stores:
 
 <table>
     <tr>
         <th>Field</th>
         <th>Meta value</th>
-        <th>Type</th>
         <th>Example</th>
     </tr>
     <tr>
-       <td>Latitude</td>
-       <td>`geo_latitude`</td>
-         <td>Type</td>
-        <td>Example</td>
-    </tr>
-        <tr>
-       <td>Longitude</td>
-       <td>`geo_longitude`</td>
-         <td>Type</td>
-        <td>Example</td>
+       <td>Public</td>
+       <td>`geo_public`</td>
+        <td>1</td>
     </tr>
     <tr>
        <td>Address</td>
        <td>`geo_address`</td>
-         <td>Type</td>
-        <td>Example</td>
+        <td>123 Front Street Portland OR</td>
+    </tr>
+    <tr>
+       <td>Latitude</td>
+       <td>`geo_latitude`</td>
+        <td>45</td>
     </tr>
         <tr>
-       <td>Public</td>
-       <td>`geo_public`</td>
-         <td>Type</td>
-        <td>Example</td>
+       <td>Longitude</td>
+       <td>`geo_longitude`</td>
+        <td>122</td>
     </tr>
-    <!-- <tr>
-        <td>Map</td>
-       <td>`geo_map`</td>
-        <td>String</td>
-        <td>Example</td>
-     </tr> -->
+    <tr>
+       <td>Heading</td>
+       <td>`geo_heading`</td>
+        <td>120</td>
+    </tr>
 </table>
 
 ## Features
-- registers the standard `geo_latitude` / `geo_longitude` / `geo_public` / `geo_address` / values defined in the [WP Geodata documentation](https://codex.wordpress.org/Geodata)
-
-
-- modern Gutenberg based editing interface allows users to manage these fields, with inputs restricted to only allow valid data.
+- modern Gutenberg based editing interface allows users to manage geodata fields, with inputs restricted to only allow valid data.
 - when the Google Maps API is enabled (and properly accredited) the user will also have access to a visual interface for choosing locations.
 - The modal can be opened using the Options panel or the Command Palette (`cmd + k`). The full commands are `Edit Geolocation data` and `Toggle Geolocation Panel` - for practical purposes typing "geo" in the search field will surface both uptions.
 - options page includes an option to choose where the interface appears: `publishing sidebar`, `plugin sidebar`, or `secondary menu`
+- Attachment data is automatically extracted upon upload and can be manually retrieved at any point.
 
 ## Todo:
 - make the attachment preview sidebar look nicer
